@@ -1,0 +1,1048 @@
+```markdown
+# VOLARON STORE - KNOWLEDGE BASE
+
+## 🏢 INFORMAÇÕES DA EMPRESA
+
+### Dados Gerais
+- **Nome:** Volaron
+- **Website atual:** volaron.com.br
+- **Segmento:** E-commerce de utilidades domésticas, jardinagem e equipamentos para cozinha/buffet
+- **Tagline:** "Certeza de quem faz a escolha certa"
+- **Contato:** (18) 3643-1990 | contato@volaron.com.br
+- **Atendimento:** Segunda à Sexta das 8h às 18h
+
+### Categorias Principais
+1. Moedores
+2. Escadas
+3. Jardinagem
+4. Raladores
+5. Trituradores
+6. Serras de fita
+7. Cilindros de massa
+8. Lavanderia
+9. Utilidades domésticas
+10. Cozinha e Buffet
+
+### Diferenciais
+- Envio para todo o Brasil
+- Descontos à vista (até 15%)
+- Entrega local no mesmo dia
+- Parcelamento em até 12x sem juros
+- Loja oficial com garantia
+
+## 🏗️ ARQUITETURA TÉCNICA
+
+### Stack Principal
+- **Frontend:** Next.js 14 + TypeScript + Tailwind CSS
+- **Backend:** MedusaJS 2.0 (API REST)
+- **Database:** PostgreSQL + Redis
+- **Search:** MeiliSearch
+- **Storage:** MinIO (S3-compatible)
+- **AI:** Gemini 1.5 Flash
+- **Infrastructure:** Railway PRO + Vercel
+
+### URLs de Produção
+- **Backend API:** https://backend-production-c461d.up.railway.app
+- **Storefront:** https://storefront-production-bd8d.up.railway.app
+- **Admin:** [A ser implementado]
+
+### Variáveis de Ambiente Frontend
+```env
+NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://backend-production-c461d.up.railway.app
+NEXT_PUBLIC_SEARCH_APP_ID=volaron_search
+NEXT_PUBLIC_SEARCH_API_KEY=[search_key]
+NEXT_PUBLIC_STRIPE_KEY=[stripe_public_key]
+```
+
+## 📡 APIs DISPONÍVEIS
+
+### MedusaJS Core Endpoints
+```
+GET    /store/products              # Listar produtos
+GET    /store/products/:id          # Detalhes do produto
+GET    /store/collections           # Listar coleções/categorias
+GET    /store/collections/:id       # Produtos de uma categoria
+POST   /store/carts                 # Criar carrinho
+POST   /store/carts/:id/line-items  # Adicionar ao carrinho
+GET    /store/shipping-options      # Opções de frete
+POST   /store/customers             # Criar conta
+POST   /store/auth                  # Login
+```
+
+### Endpoints de IA Customizados
+```
+GET    /admin/ai/health              # Status da IA
+POST   /admin/ai/generate-description # Gerar descrições
+POST   /admin/ai/optimize-seo        # Otimizar SEO
+POST   /admin/ai/suggest-related     # Sugerir relacionados
+POST   /admin/ai/analyze-query       # Analisar consultas
+```
+
+### Integração com Busca (MeiliSearch)
+```javascript
+// Configuração
+const searchClient = new MeiliSearch({
+  host: process.env.MEILISEARCH_HOST,
+  apiKey: process.env.MEILISEARCH_API_KEY,
+});
+
+// Buscar produtos
+const results = await searchClient
+  .index('products')
+  .search(query, {
+    limit: 20,
+    facets: ['categories', 'price_range'],
+  });
+```
+
+## 🎨 DESIGN SYSTEM
+
+### Cores
+```css
+:root {
+  /* Cores Principais */
+  --primary: #1B5E20;        /* Verde escuro */
+  --primary-light: #2E7D32;  /* Verde médio */
+  --secondary: #FF6B35;      /* Laranja vibrante */
+  --accent: #FFA726;         /* Laranja claro */
+  
+  /* Neutros */
+  --background: #F5F5F5;
+  --surface: #FFFFFF;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --border: #E0E0E0;
+  
+  /* Estados */
+  --success: #4CAF50;
+  --error: #F44336;
+  --warning: #FF9800;
+  --info: #2196F3;
+}
+```
+
+### Tipografia
+```css
+/* Fontes */
+--font-primary: 'Inter', -apple-system, sans-serif;
+--font-display: 'Poppins', sans-serif;
+
+/* Tamanhos */
+--text-xs: 0.75rem;     /* 12px */
+--text-sm: 0.875rem;    /* 14px */
+--text-base: 1rem;      /* 16px */
+--text-lg: 1.125rem;    /* 18px */
+--text-xl: 1.25rem;     /* 20px */
+--text-2xl: 1.5rem;     /* 24px */
+--text-3xl: 1.875rem;   /* 30px */
+--text-4xl: 2.25rem;    /* 36px */
+```
+
+### Espaçamentos
+```css
+/* Sistema 8pt */
+--space-1: 0.5rem;   /* 8px */
+--space-2: 1rem;     /* 16px */
+--space-3: 1.5rem;   /* 24px */
+--space-4: 2rem;     /* 32px */
+--space-5: 2.5rem;   /* 40px */
+--space-6: 3rem;     /* 48px */
+--space-8: 4rem;     /* 64px */
+```
+
+## 🧩 COMPONENTES PRINCIPAIS
+
+### ProductCard
+```typescript
+interface ProductCardProps {
+  product: Product;
+  variant?: 'default' | 'compact' | 'horizontal';
+  showQuickView?: boolean;
+  showWishlist?: boolean;
+}
+```
+
+### SearchBar com Autocomplete
+```typescript
+interface SearchBarProps {
+  placeholder?: string;
+  onSearch: (query: string) => void;
+  suggestions?: SearchSuggestion[];
+  isLoading?: boolean;
+}
+```
+
+### CartDrawer
+```typescript
+interface CartDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  items: LineItem[];
+  subtotal: number;
+}
+```
+
+## 📦 ESTRUTURA DE DADOS
+
+### Produto
+```typescript
+interface Product {
+  id: string;
+  title: string;
+  handle: string;
+  description: string;
+  thumbnail: string;
+  images: Image[];
+  variants: ProductVariant[];
+  categories: Category[];
+  tags: string[];
+  metadata: {
+    brand?: string;
+    specifications?: Record<string, string>;
+    seo_title?: string;
+    seo_description?: string;
+  };
+}
+```
+
+### Categoria
+```typescript
+interface Category {
+  id: string;
+  name: string;
+  handle: string;
+  parent_category_id?: string;
+  category_children: Category[];
+  products?: Product[];
+  metadata: {
+    icon?: string;
+    banner_image?: string;
+    description?: string;
+  };
+}
+```
+
+## 🔧 INTEGRAÇÕES
+
+### Pagamento
+- **Stripe** (principal)
+- **PayPal** (opcional)
+- **PIX** (obrigatório para Brasil)
+- **Boleto** (opcional)
+
+### Frete
+- **Correios** (PAC, SEDEX)
+- **Transportadoras locais**
+- **Frete grátis** acima de R$ 299
+
+### Analytics
+- **Google Analytics 4**
+- **Google Tag Manager**
+- **Hotjar** (heatmaps)
+- **Meta Pixel** (Facebook/Instagram)
+
+## 🚀 FEATURES ESPECIAIS
+
+### 1. Sistema de Avaliações
+- Integração com Judge.me ou similar
+- Avaliações verificadas
+- Fotos dos clientes
+- Perguntas e respostas
+
+### 2. Programa de Fidelidade
+- Pontos por compra
+- Níveis (Bronze, Prata, Ouro)
+- Benefícios exclusivos
+- Cupons personalizados
+
+### 3. Chat com IA
+- Atendimento 24/7
+- Recomendações de produtos
+- Suporte técnico
+- Integração com WhatsApp
+
+### 4. Quick View
+- Preview rápido do produto
+- Adicionar ao carrinho sem sair da página
+- Galeria de imagens
+- Variações disponíveis
+
+## 📱 RESPONSIVIDADE
+
+### Breakpoints
+```css
+/* Mobile First */
+--mobile: 0px;
+--tablet: 768px;
+--desktop: 1024px;
+--wide: 1280px;
+--ultrawide: 1536px;
+```
+
+### Comportamentos Mobile
+- Menu drawer lateral
+- Bottom navigation bar
+- Touch gestures para carousels
+- Filtros em modal fullscreen
+- Checkout simplificado
+
+## ⚡ OTIMIZAÇÕES
+
+### Performance
+- Lazy loading de imagens
+- Code splitting por rota
+- Prefetch de links
+- Service Worker para cache
+- Compressão Brotli
+
+### SEO
+- Meta tags dinâmicas
+- Schema.org para produtos
+- Sitemap automático
+- Robots.txt otimizado
+- URLs amigáveis
+
+### Acessibilidade
+- ARIA labels
+- Navegação por teclado
+- Alto contraste
+- Textos alternativos
+- Focus indicators
+
+## 🔐 SEGURANÇA
+
+### Headers de Segurança
+```javascript
+{
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'origin-when-cross-origin',
+  'Content-Security-Policy': "default-src 'self'",
+}
+```
+
+### Autenticação
+- JWT tokens
+- Refresh tokens
+- 2FA opcional
+- Rate limiting
+- CORS configurado
+
+## 📈 MÉTRICAS DE SUCESSO
+
+### KPIs Principais
+- Taxa de conversão > 2.5%
+- Tempo de carregamento < 3s
+- Taxa de abandono de carrinho < 70%
+- NPS > 8.0
+- Mobile traffic > 60%
+
+### Monitoramento
+- Sentry para erros
+- LogRocket para sessões
+- Datadog para infraestrutura
+- Google Search Console
+- Lighthouse CI
+
+## 🛠️ COMANDOS ÚTEIS
+
+### Desenvolvimento
+```bash
+# Instalar dependências
+npm install
+
+# Rodar localmente
+npm run dev
+
+# Build de produção
+npm run build
+
+# Testes
+npm run test
+
+# Lint
+npm run lint
+```
+
+### Deploy
+```bash
+# Deploy para Vercel
+vercel --prod
+
+# Sincronizar com Medusa
+npm run sync-products
+
+# Atualizar cache
+npm run clear-cache
+```
+
+## 📞 SUPORTE
+
+### Contatos Técnicos
+- **Backend API:** https://backend-production-c461d.up.railway.app/health
+- **Status Page:** status.volaron.com.br
+- **Docs API:** https://backend-production-c461d.up.railway.app/docs
+
+### Equipe
+- **Product Owner:** Carlos (Volaron)
+- **Tech Lead:** Will (Exzos Digital)
+- **Dev Team:** Exzos Digital
+- **Prazo:** Agosto/2025
+
+---
+## **Prompt para implementar Compra One-Click via PIX com 10% de desconto:**
+
+```
+Implemente uma funcionalidade de "Compra Rápida via PIX" com 10% de desconto automático para o Volaron Store. Esta feature deve estar disponível tanto nos cards de produtos (galeria/listagem) quanto na página individual do produto.
+
+## REQUISITOS FUNCIONAIS:
+
+### 1. BOTÃO DE COMPRA RÁPIDA
+- Adicionar botão "Comprar com PIX -10%" em:
+  - ProductCard (galeria/listagem)
+  - Página de produto (abaixo do botão principal)
+- Design do botão:
+  - Cor de fundo: Verde (#1B5E20)
+  - Ícone do PIX à esquerda
+  - Texto: "Comprar com PIX -10%"
+  - Badge de economia: "Economize R$ X,XX"
+  - Hover effect com brilho sutil
+
+### 2. FLUXO DE COMPRA RÁPIDA
+
+```typescript
+// Fluxo quando usuário clica no botão
+interface QuickBuyFlow {
+  1. validateProduct(): Promise<boolean>;      // Verificar estoque
+  2. createExpressCart(): Promise<Cart>;       // Criar carrinho temporário
+  3. applyPixDiscount(): Promise<Cart>;        // Aplicar 10% desconto
+  4. generatePixPayment(): Promise<PixData>;   // Gerar QR Code PIX
+  5. showPixModal(): void;                     // Mostrar modal de pagamento
+  6. confirmPayment(): Promise<Order>;         // Confirmar e criar pedido
+}
+```
+
+### 3. MODAL DE PAGAMENTO PIX
+
+Criar componente `PixQuickBuyModal` com:
+
+```typescript
+interface PixQuickBuyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  product: Product;
+  pixData: {
+    qrCode: string;        // Imagem QR Code
+    qrCodeText: string;    // Código copia e cola
+    amount: number;        // Valor com desconto
+    originalAmount: number; // Valor original
+    expiresAt: Date;       // Validade (30 minutos)
+    orderId: string;
+  };
+}
+```
+
+Layout do Modal:
+- Header: "Pagamento via PIX - 10% OFF"
+- Informações do produto (imagem, nome, preço)
+- QR Code grande e centralizado
+- Botão "Copiar código PIX" com feedback visual
+- Timer countdown (30 minutos)
+- Valor original riscado e valor com desconto
+- Status em tempo real (aguardando/processando/confirmado)
+- Instruções passo a passo
+
+### 4. INTEGRAÇÃO BACKEND
+
+```typescript
+// Endpoints necessários no MedusaJS
+POST /store/quick-buy/pix
+{
+  product_id: string;
+  variant_id?: string;
+  quantity: number;
+  customer_data?: {
+    email?: string;
+    cpf?: string;
+  };
+}
+
+// Resposta
+{
+  order_id: string;
+  pix_data: {
+    qr_code_base64: string;
+    qr_code_text: string;
+    amount: number;
+    expires_at: string;
+  };
+  discount_applied: number;
+  final_amount: number;
+}
+
+// Webhook para confirmar pagamento
+POST /webhooks/pix/confirmation
+```
+
+### 5. COMPONENTES A CRIAR:
+
+#### PixQuickBuyButton
+```typescript
+interface PixQuickBuyButtonProps {
+  product: Product;
+  variant?: 'default' | 'compact';
+  className?: string;
+  onSuccess?: (order: Order) => void;
+}
+```
+
+#### PixPaymentStatus
+```typescript
+interface PixPaymentStatusProps {
+  orderId: string;
+  onStatusChange: (status: PaymentStatus) => void;
+}
+```
+
+#### DiscountBadge
+```typescript
+interface DiscountBadgeProps {
+  originalPrice: number;
+  discountedPrice: number;
+  percentage: number;
+}
+```
+
+### 6. ESTADOS E ANIMAÇÕES
+
+Estados do botão:
+- Default: "Comprar com PIX -10%"
+- Loading: Spinner + "Processando..."
+- Success: Checkmark + "Pedido criado!"
+- Error: X + "Tente novamente"
+
+Animações:
+- Pulse effect no badge de desconto
+- Slide-in do modal
+- Progress bar para countdown
+- Confetti ao confirmar pagamento
+
+### 7. REGRAS DE NEGÓCIO
+
+- Desconto de 10% aplicado automaticamente
+- Válido apenas para pagamentos via PIX
+- Não acumula com outros cupons
+- Limite de 1 unidade por CPF (Quick Buy)
+- PIX válido por 30 minutos
+- Estoque reservado durante o período
+
+### 8. TRACKING E ANALYTICS
+
+Eventos para rastrear:
+```javascript
+// Google Analytics / Segment
+track('Quick Buy PIX Clicked', {
+  product_id: string,
+  product_name: string,
+  price: number,
+  discount_amount: number,
+  source: 'gallery' | 'product_page'
+});
+
+track('PIX QR Generated', {
+  order_id: string,
+  amount: number
+});
+
+track('PIX Payment Completed', {
+  order_id: string,
+  revenue: number,
+  discount: number
+});
+```
+
+### 9. RESPONSIVIDADE
+
+Mobile:
+- Modal fullscreen
+- QR Code ajustável ao tamanho da tela
+- Botão de copiar sempre visível
+- Instruções colapsáveis
+
+Desktop:
+- Modal centralizado (max-width: 500px)
+- Layout two-column se necessário
+
+### 10. TRATAMENTO DE ERROS
+
+- Produto sem estoque: Desabilitar botão + tooltip
+- Falha ao gerar PIX: Retry com fallback
+- Timeout de pagamento: Oferecer recriar PIX
+- Conexão perdida: Salvar estado local
+
+### 11. EXEMPLO DE USO NO PRODUCTCARD:
+
+```tsx
+<ProductCard product={product}>
+  {/* Conteúdo existente */}
+  
+  <div className="mt-4 space-y-2">
+    <AddToCartButton product={product} />
+    
+    <PixQuickBuyButton 
+      product={product}
+      variant="compact"
+      onSuccess={(order) => {
+        toast.success('Pedido criado com sucesso!');
+        router.push(`/pedido/${order.id}`);
+      }}
+    />
+  </div>
+</ProductCard>
+```
+
+### 12. COPY E UX WRITING
+
+Textos principais:
+- CTA: "Comprar com PIX -10%"
+- Modal título: "Pague com PIX e ganhe 10% OFF"
+- Instrução: "Escaneie o QR Code ou copie o código"
+- Economia: "Você economiza R$ {valor}"
+- Timer: "Código válido por {tempo}"
+- Sucesso: "Pagamento confirmado! 🎉"
+
+### 13. CONFIGURAÇÕES
+
+Adicionar no admin:
+- Toggle para ativar/desativar Quick Buy
+- Porcentagem de desconto configurável
+- Tempo de validade do PIX
+- Limites por cliente
+
+## IMPLEMENTAÇÃO TÉCNICA:
+
+Use:
+- React Query para gerenciar estados
+- Zustand para estado global do Quick Buy
+- Framer Motion para animações
+- React Hot Toast para notificações
+- date-fns para countdown
+- qrcode.js para gerar QR local (fallback)
+
+O componente deve ser totalmente integrado com o sistema existente do MedusaJS e seguir os padrões de design já estabelecidos no projeto.
+
+## **Prompt para implementar Popup de Boas-Vindas com Roda da Fortuna:**
+
+```
+Crie um popup de boas-vindas interativo com uma Roda da Fortuna para o Volaron Store. O popup deve aparecer para novos visitantes e oferecer descontos/benefícios para incentivar o cadastro de conta.
+
+## ESPECIFICAÇÕES DO POPUP:
+
+### 1. COMPONENTE PRINCIPAL - WelcomeWheelPopup
+
+```typescript
+interface WelcomeWheelPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSpinComplete: (prize: Prize) => void;
+}
+
+interface Prize {
+  id: string;
+  type: 'discount' | 'freeShipping' | 'gift' | 'points';
+  value: number | string;
+  label: string;
+  probability: number;
+  color: string;
+  icon: string;
+}
+```
+
+### 2. ESTRUTURA DO POPUP
+
+Layout em 2 etapas:
+
+**ETAPA 1 - Introdução:**
+```
+┌─────────────────────────────────────┐
+│  [X]                                │
+│                                     │
+│     🎉 BEM-VINDO À VOLARON! 🎉     │
+│                                     │
+│   Gire a roda e GANHE até 30% OFF  │
+│      no seu primeiro pedido!        │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │    [IMAGEM RODA PREVIEW]    │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  Prêmios disponíveis:               │
+│  • 30% OFF (raro!)                  │
+│  • 20% OFF                          │
+│  • 15% OFF                          │
+│  • Frete Grátis                     │
+│  • R$ 10 de desconto                │
+│  • 100 pontos de fidelidade         │
+│                                     │
+│  [QUERO GIRAR A RODA!] [Não, obrigado] │
+└─────────────────────────────────────┘
+```
+
+**ETAPA 2 - Roda da Fortuna:**
+```
+┌─────────────────────────────────────┐
+│  [X]                                │
+│                                     │
+│    GIRE E GANHE SEU PRÊMIO! 🎰     │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │                             │   │
+│  │      [RODA ANIMADA]         │   │
+│  │       com 8 fatias          │   │
+│  │    coloridas e prêmios      │   │
+│  │                             │   │
+│  └─────────────────────────────┘   │
+│            ↑ [PONTEIRO]             │
+│                                     │
+│  Nome: [___________________]        │
+│  Email: [___________________]       │
+│  WhatsApp: [_______________]        │
+│                                     │
+│  □ Aceito receber ofertas           │
+│                                     │
+│  [GIRAR AGORA!]                     │
+└─────────────────────────────────────┘
+```
+
+### 3. CONFIGURAÇÃO DOS PRÊMIOS
+
+```typescript
+const wheelPrizes: Prize[] = [
+  {
+    id: 'mega-discount',
+    type: 'discount',
+    value: 30,
+    label: '30% OFF',
+    probability: 5,     // 5% chance
+    color: '#FF6B35',   // Laranja vibrante
+    icon: '🔥'
+  },
+  {
+    id: 'super-discount',
+    type: 'discount',
+    value: 20,
+    label: '20% OFF',
+    probability: 10,    // 10% chance
+    color: '#FFA726',   // Laranja claro
+    icon: '🎯'
+  },
+  {
+    id: 'good-discount',
+    type: 'discount',
+    value: 15,
+    label: '15% OFF',
+    probability: 20,    // 20% chance
+    color: '#66BB6A',   // Verde claro
+    icon: '💚'
+  },
+  {
+    id: 'free-shipping',
+    type: 'freeShipping',
+    value: 'FREE',
+    label: 'FRETE GRÁTIS',
+    probability: 25,    // 25% chance
+    color: '#42A5F5',   // Azul
+    icon: '🚚'
+  },
+  {
+    id: 'fixed-discount',
+    type: 'discount',
+    value: 10,
+    label: 'R$ 10 OFF',
+    probability: 20,    // 20% chance
+    color: '#AB47BC',   // Roxo
+    icon: '💰'
+  },
+  {
+    id: 'loyalty-points',
+    type: 'points',
+    value: 100,
+    label: '100 PONTOS',
+    probability: 15,    // 15% chance
+    color: '#26A69A',   // Teal
+    icon: '⭐'
+  },
+  {
+    id: 'welcome-gift',
+    type: 'gift',
+    value: 'BRINDE',
+    label: 'BRINDE SURPRESA',
+    probability: 5,     // 5% chance
+    color: '#EC407A',   // Rosa
+    icon: '🎁'
+  },
+  {
+    id: 'try-again',
+    type: 'discount',
+    value: 5,
+    label: '5% OFF',
+    probability: 0,     // Fallback
+    color: '#78909C',   // Cinza
+    icon: '🎲'
+  }
+];
+```
+
+### 4. COMPONENTE DA RODA - SpinningWheel
+
+```typescript
+interface SpinningWheelProps {
+  prizes: Prize[];
+  onSpinStart: () => void;
+  onSpinEnd: (prize: Prize) => void;
+  isSpinning: boolean;
+  disabled: boolean;
+}
+
+// Características da roda:
+- SVG animado com Canvas fallback
+- 8 fatias coloridas com gradientes
+- Texto e ícones em cada fatia
+- Ponteiro fixo no topo
+- Sombra e efeitos 3D
+- Som de roleta (opcional)
+- Confetti ao ganhar prêmio bom
+```
+
+### 5. ANIMAÇÕES E INTERAÇÕES
+
+```typescript
+// Animação da roda
+const spinAnimation = {
+  duration: 4000,        // 4 segundos
+  easing: 'cubic-bezier(0.17, 0.67, 0.12, 0.99)',
+  rotations: 5 + Math.random() * 5,  // 5-10 voltas
+  finalAngle: calculateWinningAngle(selectedPrize)
+};
+
+// Efeitos visuais
+- Blur motion durante o giro
+- Pulse no botão GIRAR
+- Shake suave ao parar
+- Zoom in/out na fatia vencedora
+- Partículas/confetti para prêmios > 15%
+```
+
+### 6. FLUXO COMPLETO
+
+```typescript
+const WheelFlow = {
+  1: 'checkFirstVisit',      // localStorage/cookie
+  2: 'showWelcomeScreen',    // Delay de 3s após entrar
+  3: 'collectUserData',      // Form validation
+  4: 'spinWheel',           // Animação + cálculo
+  5: 'showResult',          // Tela de resultado
+  6: 'createAccount',       // API MedusaJS
+  7: 'applyCoupon',         // Gerar cupom único
+  8: 'sendEmail',           // Email com código
+  9: 'trackConversion'      // Analytics
+};
+```
+
+### 7. TELA DE RESULTADO
+
+```typescript
+interface ResultScreenProps {
+  prize: Prize;
+  couponCode: string;
+  userEmail: string;
+}
+
+// Layout do resultado:
+┌─────────────────────────────────────┐
+│                                     │
+│        🎉 PARABÉNS! 🎉              │
+│                                     │
+│     Você ganhou: 20% OFF!          │
+│                                     │
+│  Seu código: VOLARON20BXKY          │
+│                                     │
+│  [COPIAR CÓDIGO]                    │
+│                                     │
+│  ✓ Código enviado para seu email   │
+│  ✓ Válido por 7 dias               │
+│  ✓ Aplicado automaticamente        │
+│                                     │
+│  [COMEÇAR A COMPRAR]                │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+### 8. REGRAS E LÓGICA
+
+```typescript
+// Controle de exibição
+const shouldShowWheel = () => {
+  const hasSeenWheel = localStorage.getItem('volaron_wheel_shown');
+  const isReturningUser = cookies.get('returning_user');
+  const hasAccount = isAuthenticated();
+  
+  return !hasSeenWheel && !isReturningUser && !hasAccount;
+};
+
+// Validação do formulário
+const validateForm = {
+  name: yup.string().required('Nome obrigatório'),
+  email: yup.string().email('Email inválido').required(),
+  whatsapp: yup.string().matches(/^\d{11}$/, 'WhatsApp inválido')
+};
+
+// Algoritmo de seleção de prêmio
+const selectPrize = (prizes: Prize[]): Prize => {
+  const random = Math.random() * 100;
+  let accumulated = 0;
+  
+  for (const prize of prizes) {
+    accumulated += prize.probability;
+    if (random <= accumulated) return prize;
+  }
+  
+  return prizes[prizes.length - 1]; // Fallback
+};
+```
+
+### 9. INTEGRAÇÃO COM MEDUSAJS
+
+```typescript
+// Criar conta e aplicar cupom
+const handleWheelComplete = async (formData, prize) => {
+  // 1. Criar customer
+  const customer = await medusa.customers.create({
+    email: formData.email,
+    first_name: formData.name,
+    phone: formData.whatsapp,
+    metadata: {
+      source: 'welcome_wheel',
+      prize_won: prize.id
+    }
+  });
+
+  // 2. Gerar cupom único
+  const discount = await medusa.admin.discounts.create({
+    code: generateUniqueCode(prize),
+    rule: {
+      type: prize.type === 'discount' ? 'percentage' : 'fixed',
+      value: prize.value,
+      allocation: 'total'
+    },
+    usage_limit: 1,
+    usage_count: 0,
+    valid_duration: 'P7D', // 7 dias
+    metadata: {
+      customer_id: customer.id,
+      source: 'welcome_wheel',
+      prize_id: prize.id
+    }
+  });
+
+  // 3. Associar ao carrinho do cliente
+  await applyToCustomerCart(customer.id, discount.code);
+};
+```
+
+### 10. RESPONSIVIDADE
+
+**Mobile (< 768px):**
+- Popup fullscreen
+- Roda menor (250px)
+- Formulário abaixo da roda
+- Botões full width
+- Font sizes adaptados
+
+**Tablet (768px - 1024px):**
+- Modal 90% da tela
+- Roda média (350px)
+- Layout flexível
+
+**Desktop (> 1024px):**
+- Modal fixo 600px x 700px
+- Roda grande (400px)
+- Layout side-by-side opcional
+
+### 11. ACESSIBILIDADE
+
+- Navegação por teclado
+- ARIA labels descritivos
+- Modo reduzido de movimento
+- Alto contraste suportado
+- Screen reader friendly
+- Focus trap no modal
+
+### 12. PERFORMANCE
+
+```typescript
+// Lazy load do componente
+const WelcomeWheel = lazy(() => import('./WelcomeWheel'));
+
+// Preload de assets
+const preloadWheelAssets = () => {
+  const images = ['wheel-bg.png', 'pointer.svg', 'confetti.gif'];
+  images.forEach(img => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = `/assets/${img}`;
+    document.head.appendChild(link);
+  });
+};
+
+// Debounce do spin
+const debouncedSpin = debounce(handleSpin, 1000);
+```
+
+### 13. ANALYTICS E TRACKING
+
+```javascript
+// Eventos para rastrear
+track('Welcome Wheel Viewed', {
+  timestamp: new Date(),
+  device_type: getDeviceType()
+});
+
+track('Welcome Wheel Spin Started', {
+  form_filled: true,
+  time_to_spin: timeElapsed
+});
+
+track('Welcome Wheel Prize Won', {
+  prize_type: prize.type,
+  prize_value: prize.value,
+  prize_label: prize.label
+});
+
+track('Welcome Wheel Converted', {
+  email: hashedEmail,
+  coupon_code: discount.code,
+  potential_value: calculatePotentialValue(prize)
+});
+```
+
+### 14. TESTES A/B
+
+Variáveis para testar:
+- Delay de exibição (3s vs 5s vs 10s)
+- Número de prêmios (6 vs 8 vs 10)
+- Valores dos descontos
+- Copy do CTA
+- Com/sem som
+- Cores da roda
+
+### 15. FALLBACKS E EDGE CASES
+
+- JavaScript desabilitado: Form simples de cadastro
+- Animação travada: Timeout + resultado aleatório
+- API fora: Salvar local + retry
+- Email duplicado: Oferecer login
+- Saiu sem girar: Cookie para reexibir
+
+Implemente usando Framer Motion para animações, React Hook Form para o formulário, e integração completa com o sistema de descontos do MedusaJS. O componente deve ser divertido, interativo e otimizado para conversão.
